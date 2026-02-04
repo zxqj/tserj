@@ -1,0 +1,26 @@
+[project]
+name = "streameast"
+version = "0.1"
+description = ""
+readme = "README.md"
+authors = [{name = ""}]
+license = "Apache-2.0"
+requires-python = ">=3.8"
+classifiers = []
+dependencies = [
+    "asyncclick",
+    "pyyaml",
+    "sh",
+    "rich",
+    "twitchAPI"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+streameast = "streameast.cli:cli"
+
+[project.optional-dependencies]
+test = ["pytest"]
