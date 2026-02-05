@@ -6,7 +6,7 @@ from .bot import ChatResponder
 loud_sh = wrap_module_with_decorator('sh', loudspeaker)
 
 @click.command()
-@click.option("--channel", "-c", "channel", default="thetserj")
+@click.option("--channel", "-c", "channel", default="thestreameast")
 @click.option("--trigger-text", "--trigger", "-t", "trigger_text", default="Multi-Raffle")
 @click.option("--trigger-username", "--username", "-u", "trigger_username", default="streamelements")
 @click.option("--response-text", "--response", "-r", "response_text", default="!join")
