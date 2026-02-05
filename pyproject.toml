@@ -1,5 +1,5 @@
 [project]
-name = "tserj"
+name = "tctk"
 version = "0.1"
 description = ""
 readme = "README.md"
@@ -10,8 +10,6 @@ classifiers = []
 dependencies = [
     "asyncclick",
     "pyyaml",
-    "sh",
-    "rich",
     "twitchAPI"
 ]
 
@@ -20,7 +18,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-tserj = "tserj.cli:cli"
+tctk = "tctk.cli:cli"
 
 [project.optional-dependencies]
 test = ["pytest"]

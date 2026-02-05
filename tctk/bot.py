@@ -1,24 +1,21 @@
-from typing import Optional, Callable, Awaitable, Any
+from typing import Optional, Callable, Awaitable, Any, TypeAlias
 
 from twitchAPI.twitch import Twitch
-from twitchAPI.chat import Chat, ChatEvent, ChatCommand, ChatMessage
+from twitchAPI.chat import Chat, ChatEvent, ChatCommand, ChatMessage, EventData
 from twitchAPI.oauth import UserAuthenticator
 from twitchAPI.type import AuthScope
 from .config import Config
-from dataclasses import dataclass
-from random import randint
 import asyncio
 # Define your Client ID, Client Secret, bot username, and channel name
 
 # Define the required scopes
-USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
-
-async def get_chat(conf: Config = Config.get(), scopes: list[AuthScope] = USER_SCOPE) -> Chat:
+async def get_chat(conf: Config = Config.get()) -> Chat:
     # Set up twitch API instance and add user authentication
     twitch = await Twitch(conf.app.id, conf.app.secret)
-    auth = UserAuthenticator(twitch, scopes)
+    auth = UserAuthenticator(twitch, conf.scopes)
     token, refresh_token = await auth.authenticate()
-    await twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
+    Config.persist_with(access_token=token, refresh_token=refresh_token)
+    await twitch.set_user_authentication(token, conf.scopes, refresh_token)
 
     # Create chat instance
     chat = await Chat(twitch)
@@ -27,11 +24,7 @@ async def get_chat(conf: Config = Config.get(), scopes: list[AuthScope] = USER_S
 class ChatBot:
     def __init__(self, channel: str):
         self.channel = channel
-        self.behaviors: list[Callable[[ChatBot, ChatMessage], Awaitable[Any]]] = []
         self.chat = None
-
-    def add_behavior(self, behavior: Callable[[ChatBot, ChatMessage], Awaitable[Any]]):
-        self.behaviors.append(behavior)
 
     async def _delayed_send(self, channel: str, text: str, delay: float = 1.0):
         await asyncio.sleep(delay)
@@ -41,17 +34,19 @@ class ChatBot:
     async def send_message(self, text: str, delay: float = 1.0):
         await asyncio.create_task(self._delayed_send(self.channel, text, delay))
 
-    async def on_message(self, msg: ChatMessage):
-        for behavior in self.behaviors:
-            await behavior(self, msg)
-
     # Main function to run the bot
-    async def run(self):
+    async def run(self, features: list[dict[ChatEvent, Callable[[ChatBot, EventData], Awaitable[Any]]]]):
         twitch, chat = await get_chat()
         self.chat = chat
 
-        # Listen to chat messages (optional, if you want general message handling)
-        chat.register_event(ChatEvent.MESSAGE, self.on_message)
+        def make_awaitable(f: Callable[[ChatBot, EventData], Awaitable[Any]]) -> Callable[[EventData], Awaitable[Any]]:
+            async def awaitable(evt: EventData):
+                await f(self, evt)
+            return awaitable
+
+        for feature in features:
+            for event, handler in feature.items():
+                chat.register_event(event, make_awaitable(handler))
 
         # Connect and join the channel
         chat.start()
