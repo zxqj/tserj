@@ -1,6 +1,6 @@
 # Twitch Streamelements Raffle Joiner
 
-[![PyPI](https://img.shields.io/pypi/v/streameast.svg)](https://pypi.org/project/streameast/)
+[![PyPI](https://img.shields.io/pypi/v/tserj.svg)](https://pypi.org/project/tserj/)
 
 
 
@@ -8,23 +8,23 @@
 
 To install this tool using `pip`:
 ```bash
-pip install streameast
+pip install tserj
 ```
 ## Usage
 
 For help, run:
 ```bash
-streameast --help
+tserj --help
 ```
 You can also use:
 ```bash
-python -m streameast --help
+python -m tserj --help
 ```
 ## Development
 
 To contribute to this tool, first checkout the code. Then create a new virtual environment:
 ```bash
-cd streameast
+cd tserj
 python -m venv venv
 source venv/bin/activate
 ```
